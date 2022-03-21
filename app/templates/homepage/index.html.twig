@@ -1,0 +1,87 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Movies list page {{ current_page }}{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+
+    .pagination {
+        display: inline-block;
+    }
+
+    .pagination a {
+        color: black;
+        float: left;
+        padding: 8px 16px;
+        text-decoration: none;
+    }
+
+    .pagination a.active {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .pagination a:hover:not(.active) {background-color: #ddd;}
+</style>
+
+<div class="example-wrapper">
+    {% for movie in paginatedMovies %}
+        <h4>Movie id: {{ movie.id }}</h4>
+        {% for key, value in movie %}
+            {% if value is iterable %}
+                <h5>{{ key }}</h5>
+                {% if key ==  'cardImages' or key == 'keyArtImages' %}
+                    {% for image in value %}
+                        {% if image.hit is defined and image.hit is not empty %}
+                            <p>{{ image.hit }}</p>
+                        {% endif %}
+                        {% if image.cachedImage is defined and image.cachedImage is not empty %}
+                            <img src="data:image/jpeg;base64, {{ image.cachedImage}} ">
+                        {% endif %}
+                        <p>url: {{ image.url }}</p>
+                        <p>h: {{ image.h }}</p>
+                        <p>w: {{ image.w }}</p>
+                    {% endfor %}
+                {% elseif key == 'cast' or key == 'directors' %}
+                    {% for cast in value %}
+                        <p>Name: {{ cast.name }}</p>
+                    {% endfor %}
+                {% elseif key == 'genres' %}
+                    <p>{{ value|join }}</p>
+                {% elseif key == 'videos' %}
+                    {% for video in value %}
+                        <p>title: {{ video.title }}</p>
+                        <p>type: {{ video.type }}</p>
+                        <p>url: {{ video.url }}</p>
+                        {% for alternative in video.alternatives %}
+                            <p>quality: {{ alternative.quality }}</p>
+                            <p>url: {{ alternative.url }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                {% elseif key == 'viewingWindow' %}
+                    <p>startDate: {{ value.startDate }}</p>
+                    <p>wayToWatch: {{ value.wayToWatch }}</p>
+                    <p>endDate: {{ value.endDate }}</p>
+                {% endif %}
+            {% else %}
+                <p>{{ key }}: {{ value }}</p>
+            {% endif %}
+        {% endfor %}
+        <hr>
+    {% endfor %}
+
+    <div class="pagination">
+        {% if current_page > 1 %}
+            <a href="{{ path('app_homepage', { page: 1 }) }}">&laquo;</a>
+            <a href="{{ path('app_homepage', { page: current_page - 1 }) }}">{{ current_page-1 }}</a>
+        {% endif %}
+        <a class="active" href="{{ path('app_homepage', { page: current_page }) }}">{{ current_page }}</a>
+        {% if current_page < max_page %}
+            <a href="{{ path('app_homepage', { page: current_page + 1 }) }}">{{ current_page+1 }}</a>
+            <a href="{{ path('app_homepage', { page: max_page }) }}">&raquo;</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
